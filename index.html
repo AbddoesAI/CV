@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abdullah Azhar - Interactive CV</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+            overflow: hidden;
+            background: #0f1419;
+            color: #e0e0e0;
+        }
+
+        #root {
+            width: 100vw;
+            height: 100vh;
+        }
+
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            cursor: grab;
+            position: relative;
+        }
+
+        .canvas-container.dragging {
+            cursor: grabbing;
+        }
+
+        /* Instruction Overlay */
+        .instruction-overlay {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(45, 55, 72, 0.98);
+            border: 2px solid #4a5a6f;
+            border-radius: 16px;
+            padding: 32px 48px;
+            z-index: 2000;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+            text-align: center;
+            max-width: 500px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .instruction-overlay h2 {
+            font-size: 24px;
+            margin-bottom: 16px;
+            color: #60a5fa;
+        }
+
+        .instruction-overlay p {
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        .instruction-overlay button {
+            margin-top: 20px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .instruction-overlay button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+
+        .quick-actions {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 12px;
+            z-index: 1000;
+        }
+
+        .action-btn {
+            background: #2d3748;
+            color: #e0e0e0;
+            border: 1px solid #4a5a6f;
+            border-radius: 8px;
+            padding: 10px 18px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .action-btn:hover {
+            background: #374151;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .action-btn.primary {
+            background: #3b82f6;
+            border-color: #2563eb;
+        }
+
+        .action-btn.primary:hover {
+            background: #2563eb;
+        }
+
+        .node {
+            position: absolute;
+            background: #2d3748;
+            border-radius: 12px;
+            padding: 14px 20px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            font-weight: 500;
+            border: 1.5px solid #3d4a5c;
+            max-width: 280px;
+            flex-wrap: wrap;
+        }
+
+        .node:hover {
+            background: #374151;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+            transform: translateY(-3px);
+            border-color: #4a5a6f;
+        }
+
+        /* TIER SYSTEM - This is critical for visual hierarchy */
+
+        /* Tier 1: CORE - Name + Role (Absolute Dominance) */
+        .node.tier-core {
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+            font-size: 32px;
+            font-weight: 800;
+            padding: 36px 60px;
+            border: 4px solid #60a5fa;
+            box-shadow: 0 0 50px rgba(59, 130, 246, 0.5), 0 10px 30px rgba(0, 0, 0, 0.7);
+            animation: pulse 3s ease-in-out infinite;
+            max-width: none;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .node.tier-core .subtitle {
+            font-size: 18px;
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        .node.tier-core:hover {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: 0 0 70px rgba(59, 130, 246, 0.7), 0 15px 40px rgba(0, 0, 0, 0.8);
+        }
+
+        /* Tier 2: PRIMARY - Main Categories (Strong Presence) */
+        .node.tier-primary {
+            background: linear-gradient(135deg, #374151 0%, #2d3748 100%);
+            font-size: 18px;
+            font-weight: 700;
+            padding: 20px 32px;
+            border: 2.5px solid #4a5a6f;
+            color: #f9fafb;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
+        }
+
+        .node.tier-primary:hover {
+            background: linear-gradient(135deg, #4b5563 0%, #374151 100%);
+            border-color: #60a5fa;
+            box-shadow: 0 0 25px rgba(96, 165, 250, 0.4), 0 8px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Tier 3: SECONDARY - Individual Items (Medium) */
+        .node.tier-secondary {
+            background: #2d3748;
+            font-size: 15px;
+            font-weight: 600;
+            padding: 14px 24px;
+            color: #e5e7eb;
+            border: 1.5px solid #3d4a5c;
+        }
+
+        .node.tier-secondary:hover {
+            background: #374151;
+            border-color: #60a5fa;
+        }
+
+        /* Tier 4: META - Tags/Details (Small & Faded) */
+        .node.tier-meta {
+            background: #1f2937;
+            font-size: 12px;
+            font-weight: 500;
+            padding: 8px 14px;
+            color: #9ca3af;
+            border: 1px solid #374151;
+            opacity: 0.85;
+            max-width: 320px;
+        }
+
+        .node.tier-meta:hover {
+            background: #2d3748;
+            color: #d1d5db;
+            opacity: 1;
+            border-color: #4b5563;
+        }
+
+        .node.expanded {
+            border-color: #60a5fa;
+            box-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+        }
+
+        .node.tier-primary.expanded {
+            box-shadow: 0 0 30px rgba(96, 165, 250, 0.4);
+        }
+
+        .expand-icon {
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            font-size: 16px;
+            flex-shrink: 0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: bold;
+        }
+
+        .node.tier-core .expand-icon {
+            width: 36px;
+            height: 36px;
+            font-size: 20px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .node.tier-primary .expand-icon {
+            width: 30px;
+            height: 30px;
+            font-size: 18px;
+        }
+
+        .node.tier-meta .expand-icon {
+            width: 22px;
+            height: 22px;
+            font-size: 14px;
+        }
+
+        .node:hover .expand-icon {
+            background: rgba(59, 130, 246, 0.4);
+            transform: scale(1.15);
+        }
+
+        .expand-icon.expanded {
+            transform: rotate(90deg);
+            background: rgba(59, 130, 246, 0.6);
+        }
+
+        .node:hover .expand-icon.expanded {
+            transform: rotate(90deg) scale(1.15);
+        }
+
+        .node-subtitle {
+            font-size: 0.75em;
+            opacity: 0.8;
+            font-weight: normal;
+        }
+
+        .node.tier-secondary .node-subtitle {
+            display: block;
+            margin-top: 2px;
+            font-size: 11px;
+        }
+
+        /* Clickable Links */
+        .node.link {
+            color: #60a5fa;
+            text-decoration: none;
+        }
+
+        .node.link:hover {
+            color: #93c5fd;
+            text-decoration: underline;
+        }
+
+        svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .connection-line {
+            stroke: #4a5a6f;
+            stroke-width: 2;
+            fill: none;
+            opacity: 0.5;
+            transition: all 0.3s ease;
+        }
+
+        .connection-line.level-1 {
+            stroke: #60a5fa;
+            stroke-width: 3;
+            opacity: 0.6;
+        }
+
+        .zoom-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .zoom-btn {
+            width: 44px;
+            height: 44px;
+            background: #2d3748;
+            color: #e0e0e0;
+            border: 1px solid #4a5a6f;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s ease;
+            font-weight: bold;
+        }
+
+        .zoom-btn:hover {
+            background: #374151;
+            transform: scale(1.1);
+        }
+
+        .control-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: rgba(45, 55, 72, 0.95);
+            border: 1px solid #4a5a6f;
+            border-radius: 8px;
+            padding: 12px 20px;
+            font-size: 13px;
+            color: #cbd5e1;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .control-hint strong {
+            color: #60a5fa;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 50px rgba(59, 130, 246, 0.5), 0 10px 30px rgba(0, 0, 0, 0.7);
+            }
+
+            50% {
+                box-shadow: 0 0 70px rgba(59, 130, 246, 0.7), 0 10px 30px rgba(0, 0, 0, 0.7);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -45%);
+            }
+
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+        }
+
+        @keyframes nodeAppear {
+            from {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .node-entering {
+            animation: nodeAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // CV Data Structure - Reorganized with proper hierarchy
+        const cvData = {
+            id: 'root',
+            label: 'Abdullah Azhar',
+            subtitle: 'AI / ML Engineer',
+            tier: 'core',
+            children: [
+                {
+                    id: 'experience',
+                    label: 'Professional Experience',
+                    tier: 'primary',
+                    children: [
+                        {
+                            id: 'mle',
+                            label: 'ML Engineer (Freelance)',
+                            tier: 'secondary',
+                            subtitle: '2024 – Present',
+                            children: [
+                                { id: 'exp1', label: '4 production AI systems deployed', tier: 'meta' },
+                                { id: 'exp2', label: 'Healthcare • SaaS • Generative AI', tier: 'meta' },
+                                { id: 'exp3', label: 'End-to-end ML lifecycle ownership', tier: 'meta' },
+                                { id: 'exp4', label: 'Data pipelines → Training → Deployment → Monitoring', tier: 'meta' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'projects',
+                    label: 'Key Projects',
+                    tier: 'primary',
+                    children: [
+                        {
+                            id: 'proj1',
+                            label: 'Medical Imaging Diagnosis',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'p1-1', label: 'Automated pathology detection from medical images', tier: 'meta' },
+                                { id: 'p1-2', label: 'DICOM preprocessing pipeline', tier: 'meta' },
+                                { id: 'p1-3', label: 'Explainability for clinicians', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'proj2',
+                            label: 'SaaS Churn Prediction',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'p2-1', label: 'End-to-end prediction pipeline', tier: 'meta' },
+                                { id: 'p2-2', label: 'Business intelligence dashboard', tier: 'meta' },
+                                { id: 'p2-3', label: 'ROI-driven insights', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'proj3',
+                            label: 'Image Gen (Stable Diffusion 3.5)',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'p3-1', label: 'LoRA fine-tuning implementation', tier: 'meta' },
+                                { id: 'p3-2', label: 'Optimized inference (speed + memory)', tier: 'meta' },
+                                { id: 'p3-3', label: 'Advanced prompting strategies', tier: 'meta' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'skills',
+                    label: 'Technical Skills',
+                    tier: 'primary',
+                    children: [
+                        {
+                            id: 'core-ml',
+                            label: 'Core ML Stack',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'ml1', label: 'Deep Learning & Neural Networks', tier: 'meta' },
+                                { id: 'ml2', label: 'Computer Vision', tier: 'meta' },
+                                { id: 'ml3', label: 'NLP & Time-Series Analysis', tier: 'meta' },
+                                { id: 'ml4', label: 'Predictive Analytics', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'frameworks',
+                            label: 'Frameworks & Tools',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'fw1', label: 'TensorFlow • PyTorch • Keras', tier: 'meta' },
+                                { id: 'fw2', label: 'Scikit-learn • Pandas • NumPy', tier: 'meta' },
+                                { id: 'fw3', label: 'OpenCV', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'mlops',
+                            label: 'MLOps & Deployment',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'ops1', label: 'Docker • CI/CD', tier: 'meta' },
+                                { id: 'ops2', label: 'Model Deployment & Monitoring', tier: 'meta' },
+                                { id: 'ops3', label: 'Cloud Platforms (Oracle AI)', tier: 'meta' },
+                                { id: 'ops4', label: 'REST APIs', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'programming',
+                            label: 'Languages',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'lang1', label: 'Python (Primary)', tier: 'meta' },
+                                { id: 'lang2', label: 'C++ • JavaScript • SQL', tier: 'meta' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'education',
+                    label: 'Education & Certifications',
+                    tier: 'primary',
+                    children: [
+                        {
+                            id: 'degree',
+                            label: 'AI Degree (Minhaj University)',
+                            tier: 'secondary',
+                            subtitle: '2024 – 2026',
+                            children: [
+                                { id: 'edu1', label: 'Deep Learning', tier: 'meta' },
+                                { id: 'edu2', label: 'Neural Networks', tier: 'meta' },
+                                { id: 'edu3', label: 'Time-Series Analysis', tier: 'meta' },
+                                { id: 'edu4', label: 'MLOps Fundamentals', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'cert1',
+                            label: 'Oracle Cloud AI Certified',
+                            tier: 'secondary',
+                            children: [
+                                { id: 'cert1-1', label: 'Cloud-based AI/ML deployment', tier: 'meta' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'contact',
+                    label: 'Contact',
+                    tier: 'primary',
+                    children: [
+                        { id: 'location', label: 'Lahore, Pakistan', tier: 'secondary' },
+                        { id: 'email', label: 'azharabdullah4k@gmail.com', link: 'mailto:azharabdullah4k@gmail.com', tier: 'secondary' },
+                        { id: 'phone', label: '+92 317 7267361', link: 'tel:+923177267361', tier: 'secondary' },
+                        { id: 'linkedin', label: 'LinkedIn', link: 'https://www.linkedin.com/in/abdullah-azhar-009130308/', tier: 'secondary' },
+                        { id: 'github', label: 'GitHub', link: 'https://github.com/AbddoesAI', tier: 'secondary' }
+                    ]
+                }
+            ]
+        };
+
+        function InteractiveCV() {
+            const [expandedNodes, setExpandedNodes] = useState(new Set(['root']));
+            const [nodePositions, setNodePositions] = useState({});
+            const [pan, setPan] = useState({ x: 0, y: 0 });
+            const [zoom, setZoom] = useState(1);
+            const [isDragging, setIsDragging] = useState(false);
+            const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+            const [showInstructions, setShowInstructions] = useState(true);
+            const containerRef = useRef(null);
+
+            useEffect(() => {
+                calculatePositions();
+            }, [expandedNodes]);
+
+            const calculatePositions = () => {
+                const positions = {};
+                const container = containerRef.current;
+                if (!container) return;
+
+                const centerX = container.clientWidth / 2;
+                const centerY = container.clientHeight / 2;
+
+                // Tree-based spacing configuration
+                const horizontalSpacing = {
+                    'primary': 400,      // Distance from root to primary nodes
+                    'secondary': 350,    // Distance from primary to secondary
+                    'meta': 300          // Distance from secondary to meta
+                };
+
+                const verticalSpacing = {
+                    'primary': 120,      // Vertical gap between primary siblings
+                    'secondary': 80,     // Vertical gap between secondary siblings
+                    'meta': 50           // Vertical gap between meta siblings
+                };
+
+                function getNodeDimensions(node) {
+                    const sizes = {
+                        'core': { width: 350, height: 120 },
+                        'primary': { width: 240, height: 60 },
+                        'secondary': { width: 220, height: 50 },
+                        'meta': { width: 280, height: 40 }
+                    };
+                    return sizes[node.tier] || sizes['secondary'];
+                }
+
+                // Calculate the total height needed for a subtree
+                function calculateSubtreeHeight(node) {
+                    if (!expandedNodes.has(node.id) || !node.children || node.children.length === 0) {
+                        const dims = getNodeDimensions(node);
+                        return dims.height;
+                    }
+
+                    let totalHeight = 0;
+                    node.children.forEach((child, idx) => {
+                        const childHeight = calculateSubtreeHeight(child);
+                        totalHeight += childHeight;
+                        if (idx < node.children.length - 1) {
+                            // Add spacing between siblings
+                            const spacing = verticalSpacing[child.tier] || 60;
+                            totalHeight += spacing;
+                        }
+                    });
+
+                    return Math.max(totalHeight, getNodeDimensions(node).height);
+                }
+
+                function positionNode(node, depth, parentPos, availableHeight, offsetY) {
+                    const dims = getNodeDimensions(node);
+                    const isRoot = node.tier === 'core';
+
+                    if (isRoot) {
+                        // Position root node on the left side
+                        positions[node.id] = {
+                            x: 150,
+                            y: centerY,
+                            tier: node.tier,
+                            width: dims.width,
+                            height: dims.height
+                        };
+                    } else {
+                        // Position based on parent and depth
+                        const horizontalOffset = horizontalSpacing[node.tier] || 300;
+                        const x = parentPos.x + horizontalOffset;
+                        const y = offsetY + availableHeight / 2;
+
+                        positions[node.id] = {
+                            x,
+                            y,
+                            tier: node.tier,
+                            width: dims.width,
+                            height: dims.height
+                        };
+                    }
+
+                    // Position children
+                    if (expandedNodes.has(node.id) && node.children && node.children.length > 0) {
+                        const currentPos = positions[node.id];
+                        let currentY = currentPos.y;
+
+                        // Calculate total height of all children
+                        const childrenHeights = node.children.map(child => calculateSubtreeHeight(child));
+                        const totalChildrenHeight = childrenHeights.reduce((sum, h, idx) => {
+                            const spacing = idx < childrenHeights.length - 1 ? (verticalSpacing[node.children[idx].tier] || 60) : 0;
+                            return sum + h + spacing;
+                        }, 0);
+
+                        // Start positioning from top
+                        let startY = currentPos.y - totalChildrenHeight / 2;
+
+                        node.children.forEach((child, idx) => {
+                            const childHeight = childrenHeights[idx];
+                            positionNode(child, depth + 1, currentPos, childHeight, startY);
+                            startY += childHeight + (verticalSpacing[child.tier] || 60);
+                        });
+                    }
+                }
+
+                // Start positioning from root
+                positionNode(cvData, 0, null, calculateSubtreeHeight(cvData), 0);
+                setNodePositions(positions);
+            };
+
+            const toggleNode = (nodeId) => {
+                const newExpanded = new Set(expandedNodes);
+                if (newExpanded.has(nodeId)) {
+                    // Collapse this node and all children
+                    const collapseChildren = (id) => {
+                        newExpanded.delete(id);
+                        const node = findNode(cvData, id);
+                        if (node?.children) {
+                            node.children.forEach(child => collapseChildren(child.id));
+                        }
+                    };
+                    collapseChildren(nodeId);
+                } else {
+                    newExpanded.add(nodeId);
+                }
+                setExpandedNodes(newExpanded);
+            };
+
+            const findNode = (node, id) => {
+                if (node.id === id) return node;
+                if (node.children) {
+                    for (let child of node.children) {
+                        const found = findNode(child, id);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+
+            const expandAll = () => {
+                const allIds = new Set();
+                function traverse(node) {
+                    allIds.add(node.id);
+                    if (node.children) {
+                        node.children.forEach(traverse);
+                    }
+                }
+                traverse(cvData);
+                setExpandedNodes(allIds);
+            };
+
+            const collapseAll = () => {
+                setExpandedNodes(new Set(['root']));
+            };
+
+            const quickScan = () => {
+                const firstLevel = new Set(['root']);
+                cvData.children.forEach(child => firstLevel.add(child.id));
+                setExpandedNodes(firstLevel);
+            };
+
+            const handleMouseDown = (e) => {
+                if (e.target.closest('.node') || e.target.closest('.action-btn') || e.target.closest('.zoom-btn')) return;
+                setIsDragging(true);
+                setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+            };
+
+            const handleMouseMove = (e) => {
+                if (!isDragging) return;
+                setPan({
+                    x: e.clientX - dragStart.x,
+                    y: e.clientY - dragStart.y
+                });
+            };
+
+            const handleMouseUp = () => {
+                setIsDragging(false);
+            };
+
+            const handleWheel = (e) => {
+                e.preventDefault();
+                const delta = e.deltaY > 0 ? 0.92 : 1.08;
+                setZoom(prev => Math.min(Math.max(prev * delta, 0.3), 3));
+            };
+
+            const handleZoomIn = () => {
+                setZoom(prev => Math.min(prev * 1.2, 3));
+            };
+
+            const handleZoomOut = () => {
+                setZoom(prev => Math.max(prev * 0.8, 0.3));
+            };
+
+            const exportToPDF = () => {
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                let yPos = 25;
+                const lineHeight = 7;
+                const pageHeight = doc.internal.pageSize.height;
+                const margin = 20;
+
+                doc.setFontSize(24);
+                doc.setFont(undefined, 'bold');
+                doc.text('Abdullah Azhar', margin, yPos);
+                yPos += 10;
+
+                doc.setFontSize(12);
+                doc.setFont(undefined, 'normal');
+                doc.setTextColor(60, 60, 60);
+                doc.text('AI / ML Engineer | Lahore, Pakistan', margin, yPos);
+                yPos += 8;
+
+                doc.setFontSize(10);
+                doc.text('azharabdullah4k@gmail.com | +92 317 7267361', margin, yPos);
+                yPos += 12;
+
+                doc.setTextColor(0, 0, 0);
+
+                function addText(text, fontSize, isBold = false, indent = 0) {
+                    if (yPos > pageHeight - margin) {
+                        doc.addPage();
+                        yPos = margin;
+                    }
+                    doc.setFontSize(fontSize);
+                    doc.setFont(undefined, isBold ? 'bold' : 'normal');
+                    const lines = doc.splitTextToSize(text, 170 - indent);
+                    lines.forEach(line => {
+                        doc.text(line, margin + indent, yPos);
+                        yPos += lineHeight;
+                    });
+                }
+
+                function processNode(node, level = 0) {
+                    if (level === 1) {
+                        yPos += 4;
+                        addText(node.label.toUpperCase(), 13, true);
+                        yPos += 2;
+                    } else if (level === 2) {
+                        addText('• ' + node.label, 11, false, 5);
+                    } else if (level > 2) {
+                        addText('  - ' + node.label, 10, false, 15);
+                    }
+
+                    if (node.children) {
+                        node.children.forEach(child => processNode(child, level + 1));
+                    }
+                }
+
+                cvData.children.forEach(child => processNode(child, 1));
+
+                doc.save('Abdullah_Azhar_CV.pdf');
+            };
+
+            const handleNodeClick = (node, e) => {
+                if (node.link) {
+                    window.open(node.link, '_blank');
+                    e.stopPropagation();
+                } else if (node.children) {
+                    toggleNode(node.id);
+                }
+            };
+
+            const renderNode = (node) => {
+                const pos = nodePositions[node.id];
+                if (!pos) return null;
+
+                const hasChildren = node.children && node.children.length > 0;
+                const isExpanded = expandedNodes.has(node.id);
+                const isLink = !!node.link;
+                const tier = node.tier || 'secondary';
+
+                const className = `node tier-${tier} ${isExpanded ? 'expanded' : ''} ${isLink ? 'link' : ''} node-entering`;
+
+                return (
+                    <div
+                        key={node.id}
+                        className={className}
+                        style={{
+                            left: `${pos.x}px`,
+                            top: `${pos.y}px`,
+                            transform: 'translate(-50%, -50%)'
+                        }}
+                        onClick={(e) => handleNodeClick(node, e)}
+                    >
+                        <div style={{ flex: 1 }}>
+                            <div>{node.label}</div>
+                            {node.subtitle && (
+                                <div className="node-subtitle">{node.subtitle}</div>
+                            )}
+                        </div>
+                        {hasChildren && !isLink && (
+                            <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
+                                ›
+                            </span>
+                        )}
+                        {isLink && (
+                            <span className="expand-icon">
+                                ↗
+                            </span>
+                        )}
+                    </div>
+                );
+            };
+
+            const renderConnections = () => {
+                const lines = [];
+
+                function traverse(node) {
+                    if (expandedNodes.has(node.id) && node.children) {
+                        const parentPos = nodePositions[node.id];
+                        node.children.forEach(child => {
+                            const childPos = nodePositions[child.id];
+                            if (parentPos && childPos) {
+                                // Different line styles based on parent tier
+                                let className = 'connection-line';
+                                if (node.tier === 'core') {
+                                    className += ' level-1';
+                                }
+
+                                // Calculate connection points at node edges
+                                // Parent: right edge, Child: left edge
+                                const parentWidth = parentPos.width || 200;
+                                const childWidth = childPos.width || 200;
+
+                                const startX = parentPos.x + parentWidth / 2;
+                                const startY = parentPos.y;
+                                const endX = childPos.x - childWidth / 2;
+                                const endY = childPos.y;
+
+                                // Create smooth horizontal curve for tree layout
+                                // Control points create an S-curve from parent to child
+                                const midX = (startX + endX) / 2;
+
+                                lines.push(
+                                    <path
+                                        key={`${node.id}-${child.id}`}
+                                        className={className}
+                                        d={`M ${startX} ${startY} C ${midX} ${startY}, ${midX} ${endY}, ${endX} ${endY}`}
+                                    />
+                                );
+                            }
+                            traverse(child);
+                        });
+                    }
+                }
+
+                traverse(cvData);
+                return lines;
+            };
+
+            const renderAllNodes = () => {
+                const nodes = [];
+
+                function traverse(node) {
+                    nodes.push(renderNode(node));
+                    if (expandedNodes.has(node.id) && node.children) {
+                        node.children.forEach(child => traverse(child));
+                    }
+                }
+
+                traverse(cvData);
+                return nodes;
+            };
+
+            return (
+                <>
+                    {showInstructions && (
+                        <div className="instruction-overlay">
+                            <h2>Welcome to Interactive CV</h2>
+                            <p><strong>Click</strong> nodes to explore details</p>
+                            <p><strong>Drag</strong> canvas to pan around</p>
+                            <p><strong>Scroll</strong> to zoom in/out</p>
+                            <p>Use <strong>Quick Scan</strong> for fast overview</p>
+                            <button onClick={() => setShowInstructions(false)}>
+                                Start Exploring
+                            </button>
+                        </div>
+                    )}
+
+                    <div className="quick-actions">
+                        <button className="action-btn" onClick={quickScan}>
+                            ⚡ Quick Scan
+                        </button>
+                        <button className="action-btn" onClick={expandAll}>
+                            ⊕ Expand All
+                        </button>
+                        <button className="action-btn" onClick={collapseAll}>
+                            ⊖ Collapse All
+                        </button>
+                        <button className="action-btn primary" onClick={exportToPDF}>
+                            ⬇ Export PDF
+                        </button>
+                    </div>
+
+                    <div
+                        ref={containerRef}
+                        className={`canvas-container ${isDragging ? 'dragging' : ''}`}
+                        onMouseDown={handleMouseDown}
+                        onMouseMove={handleMouseMove}
+                        onMouseUp={handleMouseUp}
+                        onMouseLeave={handleMouseUp}
+                        onWheel={handleWheel}
+                    >
+                        <div
+                            style={{
+                                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                                transformOrigin: '0 0',
+                                width: '5000px',
+                                height: '5000px',
+                                position: 'relative'
+                            }}
+                        >
+                            <svg style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                width: '5000px',
+                                height: '5000px',
+                                overflow: 'visible'
+                            }}>
+                                {renderConnections()}
+                            </svg>
+                            {renderAllNodes()}
+                        </div>
+                    </div>
+
+                    <div className="zoom-controls">
+                        <button className="zoom-btn" onClick={handleZoomIn}>+</button>
+                        <button className="zoom-btn" onClick={handleZoomOut}>−</button>
+                    </div>
+
+                    <div className="control-hint">
+                        <strong>Drag</strong> to explore • <strong>Scroll</strong> to zoom • <strong>Click</strong> nodes to expand
+                    </div>
+                </>
+            );
+        }
+
+        ReactDOM.render(<InteractiveCV />, document.getElementById('root'));
+    </script>
+</body>
+
+</html>
