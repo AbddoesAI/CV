@@ -39,7 +39,6 @@
             cursor: grabbing;
         }
 
-        /* Instruction Overlay */
         .instruction-overlay {
             position: fixed;
             top: 50%;
@@ -153,9 +152,6 @@
             border-color: #4a5a6f;
         }
 
-        /* TIER SYSTEM - This is critical for visual hierarchy */
-
-        /* Tier 1: CORE - Name + Role (Absolute Dominance) */
         .node.tier-core {
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             font-size: 32px;
@@ -180,7 +176,6 @@
             box-shadow: 0 0 70px rgba(59, 130, 246, 0.7), 0 15px 40px rgba(0, 0, 0, 0.8);
         }
 
-        /* Tier 2: PRIMARY - Main Categories (Strong Presence) */
         .node.tier-primary {
             background: linear-gradient(135deg, #374151 0%, #2d3748 100%);
             font-size: 18px;
@@ -197,7 +192,6 @@
             box-shadow: 0 0 25px rgba(96, 165, 250, 0.4), 0 8px 20px rgba(0, 0, 0, 0.6);
         }
 
-        /* Tier 3: SECONDARY - Individual Items (Medium) */
         .node.tier-secondary {
             background: #2d3748;
             font-size: 15px;
@@ -212,7 +206,6 @@
             border-color: #60a5fa;
         }
 
-        /* Tier 4: META - Tags/Details (Small & Faded) */
         .node.tier-meta {
             background: #1f2937;
             font-size: 12px;
@@ -221,7 +214,7 @@
             color: #9ca3af;
             border: 1px solid #374151;
             opacity: 0.85;
-            max-width: 320px;
+            max-width: 340px;
         }
 
         .node.tier-meta:hover {
@@ -238,6 +231,19 @@
 
         .node.tier-primary.expanded {
             box-shadow: 0 0 30px rgba(96, 165, 250, 0.4);
+        }
+
+        /* Badge for metrics */
+        .metric-badge {
+            display: inline-block;
+            background: rgba(59, 130, 246, 0.2);
+            color: #93c5fd;
+            border: 1px solid rgba(59, 130, 246, 0.4);
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 4px;
         }
 
         .expand-icon {
@@ -299,7 +305,6 @@
             font-size: 11px;
         }
 
-        /* Clickable Links */
         .node.link {
             color: #60a5fa;
             text-decoration: none;
@@ -384,43 +389,22 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 50px rgba(59, 130, 246, 0.5), 0 10px 30px rgba(0, 0, 0, 0.7);
-            }
-
-            50% {
-                box-shadow: 0 0 70px rgba(59, 130, 246, 0.7), 0 10px 30px rgba(0, 0, 0, 0.7);
-            }
+            0%, 100% { box-shadow: 0 0 50px rgba(59, 130, 246, 0.5), 0 10px 30px rgba(0, 0, 0, 0.7); }
+            50% { box-shadow: 0 0 70px rgba(59, 130, 246, 0.7), 0 10px 30px rgba(0, 0, 0, 0.7); }
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translate(-50%, -45%);
-            }
-
-            to {
-                opacity: 1;
-                transform: translate(-50%, -50%);
-            }
+            from { opacity: 0; transform: translate(-50%, -45%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
         }
 
         @keyframes nodeAppear {
-            from {
-                opacity: 0;
-                transform: scale(0.7);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1);
-            }
+            from { opacity: 0; transform: scale(0.7) translate(-50%, -50%); }
+            to { opacity: 1; transform: scale(1) translate(-50%, -50%); }
         }
 
         .node-entering {
-            animation: nodeAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            animation: nodeAppear 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
     </style>
 </head>
@@ -431,104 +415,136 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // CV Data Structure - Reorganized with proper hierarchy
         const cvData = {
             id: 'root',
             label: 'Abdullah Azhar',
-            subtitle: 'AI / ML Engineer',
+            subtitle: 'Junior AI / ML Engineer',
             tier: 'core',
             children: [
                 {
                     id: 'experience',
-                    label: 'Professional Experience',
+                    label: '💼 Experience',
                     tier: 'primary',
                     children: [
                         {
                             id: 'mle',
-                            label: 'ML Engineer (Freelance)',
+                            label: 'ML Engineer — Freelance',
                             tier: 'secondary',
-                            subtitle: '2024 – Present',
+                            subtitle: '01/2024 – Present',
                             children: [
-                                { id: 'exp1', label: '4 production AI systems deployed', tier: 'meta' },
-                                { id: 'exp2', label: 'Healthcare • SaaS • Generative AI', tier: 'meta' },
-                                { id: 'exp3', label: 'End-to-end ML lifecycle ownership', tier: 'meta' },
-                                { id: 'exp4', label: 'Data pipelines → Training → Deployment → Monitoring', tier: 'meta' }
+                                { id: 'exp1', label: 'Shipped 6 AI systems across LLM, RAG, computer vision & automation', tier: 'meta' },
+                                { id: 'exp2', label: 'Full ML lifecycle: data preprocessing → feature engineering → evaluation → deployment', tier: 'meta' },
+                                { id: 'exp3', label: 'Prompt engineering, LangChain LCEL chains & agentic frameworks (Agno, n8n)', tier: 'meta' },
+                                { id: 'exp4', label: 'All projects publicly documented on GitHub with working codebases', tier: 'meta' }
                             ]
                         }
                     ]
                 },
                 {
                     id: 'projects',
-                    label: 'Key Projects',
+                    label: '🚀 Projects',
                     tier: 'primary',
                     children: [
                         {
-                            id: 'proj1',
-                            label: 'Medical Imaging Diagnosis',
+                            id: 'proj-churn',
+                            label: 'Customer Churn Prediction',
                             tier: 'secondary',
+                            subtitle: 'SaaS · LightGBM · SHAP · Feature Engineering',
                             children: [
-                                { id: 'p1-1', label: 'Automated pathology detection from medical images', tier: 'meta' },
-                                { id: 'p1-2', label: 'DICOM preprocessing pipeline', tier: 'meta' },
-                                { id: 'p1-3', label: 'Explainability for clinicians', tier: 'meta' }
+                                { id: 'churn-1', label: '74.3% AUC-ROC on 7,043 customer records', tier: 'meta' },
+                                { id: 'churn-2', label: '8 engineered behavioral features: SpendingTrend, ServiceAdoptionRate, CLV, PriceSensitivity', tier: 'meta' },
+                                { id: 'churn-3', label: 'Per-customer SHAP explainability — top 3 churn drivers per user', tier: 'meta' },
+                                { id: 'churn-4', label: 'Interactive Dash/Plotly retention dashboard with exportable CSV reports', tier: 'meta' },
+                                { id: 'churn-5', label: 'Class-imbalance correction via scale_pos_weight', tier: 'meta' }
                             ]
                         },
                         {
-                            id: 'proj2',
-                            label: 'SaaS Churn Prediction',
+                            id: 'proj-rag',
+                            label: 'RAG PDF Chatbot',
                             tier: 'secondary',
+                            subtitle: 'RAG · LangChain · ChromaDB · Groq · Embeddings',
                             children: [
-                                { id: 'p2-1', label: 'End-to-end prediction pipeline', tier: 'meta' },
-                                { id: 'p2-2', label: 'Business intelligence dashboard', tier: 'meta' },
-                                { id: 'p2-3', label: 'ROI-driven insights', tier: 'meta' }
+                                { id: 'rag-1', label: 'Local RAG pipeline: PyPDFLoader → chunking (1000 chars/200 overlap) → ChromaDB vector store', tier: 'meta' },
+                                { id: 'rag-2', label: 'HuggingFace all-MiniLM-L6-v2 embeddings, top-4 chunk retrieval with source + page citations', tier: 'meta' },
+                                { id: 'rag-3', label: '4 Groq LLM models: Llama-3.3-70b, Mixtral-8x7b, Gemma2-9b + streaming token output', tier: 'meta' },
+                                { id: 'rag-4', label: 'Conversation memory via rephrase chain; Gradio 6 UI; fully in-memory, no data persistence', tier: 'meta' },
+                                { id: 'rag-link', label: '→ github.com/AbddoesAI/RAG_Chatbot', link: 'https://github.com/AbddoesAI/RAG_Chatbot', tier: 'meta' }
                             ]
                         },
                         {
-                            id: 'proj3',
-                            label: 'Image Gen (Stable Diffusion 3.5)',
+                            id: 'proj-n8n',
+                            label: 'n8n Lead Enrichment Automation',
                             tier: 'secondary',
+                            subtitle: 'Agentic AI · n8n · GPT · Jina Reader · Airtable',
                             children: [
-                                { id: 'p3-1', label: 'LoRA fine-tuning implementation', tier: 'meta' },
-                                { id: 'p3-2', label: 'Optimized inference (speed + memory)', tier: 'meta' },
-                                { id: 'p3-3', label: 'Advanced prompting strategies', tier: 'meta' }
+                                { id: 'n8n-1', label: 'Input: company URL → Output: industry classification, ICP fit score (1–10), tech stack, cold email opener', tier: 'meta' },
+                                { id: 'n8n-2', label: 'Results written to Airtable automatically via Jina Reader API + GPT', tier: 'meta' },
+                                { id: 'n8n-3', label: 'Validated on 5 real B2B SaaS companies: Linear, Retool, Cal.com, Mercury, Attio', tier: 'meta' },
+                                { id: 'n8n-4', label: 'Zero manual corrections across all 5 test runs', tier: 'meta' },
+                                { id: 'n8n-5', label: 'Eliminates 100+ hours/month of manual lead research for 50+ leads/week sales teams', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'proj-medical',
+                            label: 'Medical Imaging Diagnosis Agent',
+                            tier: 'secondary',
+                            subtitle: 'Multimodal AI · Google Gemini · Agno · Streamlit',
+                            children: [
+                                { id: 'med-1', label: 'Multimodal analysis via Google Gemini vision API across X-ray, MRI, CT, and ultrasound', tier: 'meta' },
+                                { id: 'med-2', label: 'Agno agent orchestration for structured diagnostic report generation', tier: 'meta' },
+                                { id: 'med-3', label: 'Automated medical literature retrieval via DuckDuckGo search integration', tier: 'meta' },
+                                { id: 'med-4', label: 'Context-aware follow-up Q&A, session history (10 analyses), downloadable TXT/Markdown reports', tier: 'meta' },
+                                { id: 'med-link', label: '→ github.com/AbddoesAI/Medical-Imaging-Diagnosis-Agent', link: 'https://github.com/AbddoesAI/Medical-Imaging-Diagnosis-Agent', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'proj-therapist',
+                            label: 'Conversational AI Agent',
+                            tier: 'secondary',
+                            subtitle: 'GPT-3.5 · LLM · Memory Architecture · Mental Health',
+                            children: [
+                                { id: 'th-1', label: 'GPT-3.5-turbo agent with persistent JSON memory architecture', tier: 'meta' },
+                                { id: 'th-2', label: 'Real-time mood tracking from natural language cues ("I feel...")', tier: 'meta' },
+                                { id: 'th-3', label: 'Full chat history management for context-aware therapeutic dialogue', tier: 'meta' },
+                                { id: 'th-link', label: '→ github.com/AbddoesAI/AI-therapist-ChatBot', link: 'https://github.com/AbddoesAI/AI-therapist-ChatBot', tier: 'meta' }
                             ]
                         }
                     ]
                 },
                 {
                     id: 'skills',
-                    label: 'Technical Skills',
+                    label: '🛠 Technical Skills',
                     tier: 'primary',
                     children: [
                         {
                             id: 'core-ml',
-                            label: 'Core ML Stack',
+                            label: 'ML / AI',
                             tier: 'secondary',
                             children: [
-                                { id: 'ml1', label: 'Deep Learning & Neural Networks', tier: 'meta' },
-                                { id: 'ml2', label: 'Computer Vision', tier: 'meta' },
-                                { id: 'ml3', label: 'NLP & Time-Series Analysis', tier: 'meta' },
-                                { id: 'ml4', label: 'Predictive Analytics', tier: 'meta' }
+                                { id: 'ml1', label: 'Deep Learning · Neural Networks · Computer Vision', tier: 'meta' },
+                                { id: 'ml2', label: 'NLP · LLM Integration · Prompt Engineering', tier: 'meta' },
+                                { id: 'ml3', label: 'RAG · Feature Engineering · SHAP Explainability', tier: 'meta' },
+                                { id: 'ml4', label: 'Predictive Analytics · Diffusion Models', tier: 'meta' }
                             ]
                         },
                         {
                             id: 'frameworks',
-                            label: 'Frameworks & Tools',
+                            label: 'Frameworks',
                             tier: 'secondary',
                             children: [
-                                { id: 'fw1', label: 'TensorFlow • PyTorch • Keras', tier: 'meta' },
-                                { id: 'fw2', label: 'Scikit-learn • Pandas • NumPy', tier: 'meta' },
-                                { id: 'fw3', label: 'OpenCV', tier: 'meta' }
+                                { id: 'fw1', label: 'PyTorch · TensorFlow · Keras', tier: 'meta' },
+                                { id: 'fw2', label: 'Scikit-learn · LightGBM · Pandas · NumPy', tier: 'meta' },
+                                { id: 'fw3', label: 'LangChain · ChromaDB · Gradio · Agno', tier: 'meta' }
                             ]
                         },
                         {
                             id: 'mlops',
-                            label: 'MLOps & Deployment',
+                            label: 'MLOps & Automation',
                             tier: 'secondary',
                             children: [
-                                { id: 'ops1', label: 'Docker • CI/CD', tier: 'meta' },
-                                { id: 'ops2', label: 'Model Deployment & Monitoring', tier: 'meta' },
-                                { id: 'ops3', label: 'Cloud Platforms (Oracle AI)', tier: 'meta' },
-                                { id: 'ops4', label: 'REST APIs', tier: 'meta' }
+                                { id: 'ops1', label: 'Docker · FastAPI · Git · Linux · REST APIs', tier: 'meta' },
+                                { id: 'ops2', label: 'n8n · Jina Reader API · Airtable', tier: 'meta' },
+                                { id: 'ops3', label: 'Hugging Face · Google Cloud · Azure AI Foundry', tier: 'meta' }
                             ]
                         },
                         {
@@ -537,48 +553,73 @@
                             tier: 'secondary',
                             children: [
                                 { id: 'lang1', label: 'Python (Primary)', tier: 'meta' },
-                                { id: 'lang2', label: 'C++ • JavaScript • SQL', tier: 'meta' }
+                                { id: 'lang2', label: 'JavaScript · SQL', tier: 'meta' }
                             ]
                         }
                     ]
                 },
                 {
                     id: 'education',
-                    label: 'Education & Certifications',
+                    label: '🎓 Education',
                     tier: 'primary',
                     children: [
                         {
-                            id: 'degree',
-                            label: 'AI Degree (Minhaj University)',
+                            id: 'bs',
+                            label: 'BS Artificial Intelligence',
                             tier: 'secondary',
-                            subtitle: '2024 – 2026',
+                            subtitle: 'University of Sialkot · 2026 – Expected 2029',
                             children: [
-                                { id: 'edu1', label: 'Deep Learning', tier: 'meta' },
-                                { id: 'edu2', label: 'Neural Networks', tier: 'meta' },
-                                { id: 'edu3', label: 'Time-Series Analysis', tier: 'meta' },
-                                { id: 'edu4', label: 'MLOps Fundamentals', tier: 'meta' }
+                                { id: 'bs-1', label: 'Currently enrolled · 5th semester', tier: 'meta' }
+                            ]
+                        },
+                        {
+                            id: 'associate',
+                            label: 'Associate Degree — AI',
+                            tier: 'secondary',
+                            subtitle: 'Minhaj University Lahore · 07/2024 – 02/2026',
+                            children: [
+                                { id: 'edu1', label: 'Deep Learning · Neural Networks', tier: 'meta' },
+                                { id: 'edu2', label: 'Computer Vision · NLP', tier: 'meta' },
+                                { id: 'edu3', label: 'Time-Series Analysis · MLOps Fundamentals', tier: 'meta' }
                             ]
                         },
                         {
                             id: 'cert1',
-                            label: 'Oracle Cloud AI Certified',
+                            label: 'Oracle Cloud (OCI) AI Foundations',
                             tier: 'secondary',
                             children: [
-                                { id: 'cert1-1', label: 'Cloud-based AI/ML deployment', tier: 'meta' }
+                                { id: 'cert1-1', label: 'Cloud-based AI/ML model deployment & Oracle Cloud AI services', tier: 'meta' }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    id: 'publication',
+                    label: '📄 Publication',
+                    tier: 'primary',
+                    children: [
+                        {
+                            id: 'pub1',
+                            label: 'Cognitive Atrophy in the Age of AI',
+                            tier: 'secondary',
+                            subtitle: 'SSRN Preprint · March 2026',
+                            children: [
+                                { id: 'pub1-1', label: 'Explores the intersection of AI systems and human critical reasoning', tier: 'meta' },
+                                { id: 'pub1-link', label: '→ Available on SSRN', link: 'https://ssrn.com', tier: 'meta' }
                             ]
                         }
                     ]
                 },
                 {
                     id: 'contact',
-                    label: 'Contact',
+                    label: '📬 Contact',
                     tier: 'primary',
                     children: [
-                        { id: 'location', label: 'Lahore, Pakistan', tier: 'secondary' },
+                        { id: 'location', label: 'Gujrat, Punjab, Pakistan', tier: 'secondary' },
                         { id: 'email', label: 'azharabdullah4k@gmail.com', link: 'mailto:azharabdullah4k@gmail.com', tier: 'secondary' },
-                        { id: 'phone', label: '+92 317 7267361', link: 'tel:+923177267361', tier: 'secondary' },
-                        { id: 'linkedin', label: 'LinkedIn', link: 'https://www.linkedin.com/in/abdullah-azhar-009130308/', tier: 'secondary' },
-                        { id: 'github', label: 'GitHub', link: 'https://github.com/AbddoesAI', tier: 'secondary' }
+                        { id: 'phone', label: '+92 317 726 7361', link: 'tel:+923177267361', tier: 'secondary' },
+                        { id: 'github', label: 'github.com/AbddoesAI', link: 'https://github.com/AbddoesAI', tier: 'secondary' },
+                        { id: 'linkedin', label: 'LinkedIn Profile', link: 'https://www.linkedin.com/in/abdullah-azhar-009130308/', tier: 'secondary' }
                     ]
                 }
             ]
@@ -606,47 +647,39 @@
                 const centerX = container.clientWidth / 2;
                 const centerY = container.clientHeight / 2;
 
-                // Tree-based spacing configuration
                 const horizontalSpacing = {
-                    'primary': 400,      // Distance from root to primary nodes
-                    'secondary': 350,    // Distance from primary to secondary
-                    'meta': 300          // Distance from secondary to meta
+                    'primary': 400,
+                    'secondary': 360,
+                    'meta': 320
                 };
 
                 const verticalSpacing = {
-                    'primary': 120,      // Vertical gap between primary siblings
-                    'secondary': 80,     // Vertical gap between secondary siblings
-                    'meta': 50           // Vertical gap between meta siblings
+                    'primary': 120,
+                    'secondary': 90,
+                    'meta': 52
                 };
 
                 function getNodeDimensions(node) {
                     const sizes = {
-                        'core': { width: 350, height: 120 },
+                        'core': { width: 360, height: 120 },
                         'primary': { width: 240, height: 60 },
-                        'secondary': { width: 220, height: 50 },
-                        'meta': { width: 280, height: 40 }
+                        'secondary': { width: 240, height: 58 },
+                        'meta': { width: 320, height: 40 }
                     };
                     return sizes[node.tier] || sizes['secondary'];
                 }
 
-                // Calculate the total height needed for a subtree
                 function calculateSubtreeHeight(node) {
                     if (!expandedNodes.has(node.id) || !node.children || node.children.length === 0) {
-                        const dims = getNodeDimensions(node);
-                        return dims.height;
+                        return getNodeDimensions(node).height;
                     }
-
                     let totalHeight = 0;
                     node.children.forEach((child, idx) => {
-                        const childHeight = calculateSubtreeHeight(child);
-                        totalHeight += childHeight;
+                        totalHeight += calculateSubtreeHeight(child);
                         if (idx < node.children.length - 1) {
-                            // Add spacing between siblings
-                            const spacing = verticalSpacing[child.tier] || 60;
-                            totalHeight += spacing;
+                            totalHeight += (verticalSpacing[child.tier] || 60);
                         }
                     });
-
                     return Math.max(totalHeight, getNodeDimensions(node).height);
                 }
 
@@ -655,53 +688,39 @@
                     const isRoot = node.tier === 'core';
 
                     if (isRoot) {
-                        // Position root node on the left side
                         positions[node.id] = {
-                            x: 150,
+                            x: 180,
                             y: centerY,
                             tier: node.tier,
                             width: dims.width,
                             height: dims.height
                         };
                     } else {
-                        // Position based on parent and depth
                         const horizontalOffset = horizontalSpacing[node.tier] || 300;
-                        const x = parentPos.x + horizontalOffset;
-                        const y = offsetY + availableHeight / 2;
-
                         positions[node.id] = {
-                            x,
-                            y,
+                            x: parentPos.x + horizontalOffset,
+                            y: offsetY + availableHeight / 2,
                             tier: node.tier,
                             width: dims.width,
                             height: dims.height
                         };
                     }
 
-                    // Position children
                     if (expandedNodes.has(node.id) && node.children && node.children.length > 0) {
                         const currentPos = positions[node.id];
-                        let currentY = currentPos.y;
-
-                        // Calculate total height of all children
-                        const childrenHeights = node.children.map(child => calculateSubtreeHeight(child));
+                        const childrenHeights = node.children.map(c => calculateSubtreeHeight(c));
                         const totalChildrenHeight = childrenHeights.reduce((sum, h, idx) => {
-                            const spacing = idx < childrenHeights.length - 1 ? (verticalSpacing[node.children[idx].tier] || 60) : 0;
-                            return sum + h + spacing;
+                            return sum + h + (idx < childrenHeights.length - 1 ? (verticalSpacing[node.children[idx].tier] || 60) : 0);
                         }, 0);
 
-                        // Start positioning from top
                         let startY = currentPos.y - totalChildrenHeight / 2;
-
                         node.children.forEach((child, idx) => {
-                            const childHeight = childrenHeights[idx];
-                            positionNode(child, depth + 1, currentPos, childHeight, startY);
-                            startY += childHeight + (verticalSpacing[child.tier] || 60);
+                            positionNode(child, depth + 1, currentPos, childrenHeights[idx], startY);
+                            startY += childrenHeights[idx] + (verticalSpacing[child.tier] || 60);
                         });
                     }
                 }
 
-                // Start positioning from root
                 positionNode(cvData, 0, null, calculateSubtreeHeight(cvData), 0);
                 setNodePositions(positions);
             };
@@ -709,13 +728,10 @@
             const toggleNode = (nodeId) => {
                 const newExpanded = new Set(expandedNodes);
                 if (newExpanded.has(nodeId)) {
-                    // Collapse this node and all children
                     const collapseChildren = (id) => {
                         newExpanded.delete(id);
                         const node = findNode(cvData, id);
-                        if (node?.children) {
-                            node.children.forEach(child => collapseChildren(child.id));
-                        }
+                        if (node?.children) node.children.forEach(c => collapseChildren(c.id));
                     };
                     collapseChildren(nodeId);
                 } else {
@@ -737,23 +753,19 @@
 
             const expandAll = () => {
                 const allIds = new Set();
-                function traverse(node) {
+                const traverse = (node) => {
                     allIds.add(node.id);
-                    if (node.children) {
-                        node.children.forEach(traverse);
-                    }
-                }
+                    if (node.children) node.children.forEach(traverse);
+                };
                 traverse(cvData);
                 setExpandedNodes(allIds);
             };
 
-            const collapseAll = () => {
-                setExpandedNodes(new Set(['root']));
-            };
+            const collapseAll = () => setExpandedNodes(new Set(['root']));
 
             const quickScan = () => {
                 const firstLevel = new Set(['root']);
-                cvData.children.forEach(child => firstLevel.add(child.id));
+                cvData.children.forEach(c => firstLevel.add(c.id));
                 setExpandedNodes(firstLevel);
             };
 
@@ -765,15 +777,10 @@
 
             const handleMouseMove = (e) => {
                 if (!isDragging) return;
-                setPan({
-                    x: e.clientX - dragStart.x,
-                    y: e.clientY - dragStart.y
-                });
+                setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
             };
 
-            const handleMouseUp = () => {
-                setIsDragging(false);
-            };
+            const handleMouseUp = () => setIsDragging(false);
 
             const handleWheel = (e) => {
                 e.preventDefault();
@@ -781,18 +788,9 @@
                 setZoom(prev => Math.min(Math.max(prev * delta, 0.3), 3));
             };
 
-            const handleZoomIn = () => {
-                setZoom(prev => Math.min(prev * 1.2, 3));
-            };
-
-            const handleZoomOut = () => {
-                setZoom(prev => Math.max(prev * 0.8, 0.3));
-            };
-
             const exportToPDF = () => {
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
-
                 let yPos = 25;
                 const lineHeight = 7;
                 const pageHeight = doc.internal.pageSize.height;
@@ -806,47 +804,38 @@
                 doc.setFontSize(12);
                 doc.setFont(undefined, 'normal');
                 doc.setTextColor(60, 60, 60);
-                doc.text('AI / ML Engineer | Lahore, Pakistan', margin, yPos);
+                doc.text('Junior AI/ML Engineer', margin, yPos);
                 yPos += 8;
 
                 doc.setFontSize(10);
-                doc.text('azharabdullah4k@gmail.com | +92 317 7267361', margin, yPos);
+                doc.text('azharabdullah4k@gmail.com | +92 317 726 7361 | github.com/AbddoesAI', margin, yPos);
                 yPos += 12;
-
                 doc.setTextColor(0, 0, 0);
 
-                function addText(text, fontSize, isBold = false, indent = 0) {
-                    if (yPos > pageHeight - margin) {
-                        doc.addPage();
-                        yPos = margin;
-                    }
+                const addText = (text, fontSize, isBold = false, indent = 0) => {
+                    if (yPos > pageHeight - margin) { doc.addPage(); yPos = margin; }
                     doc.setFontSize(fontSize);
                     doc.setFont(undefined, isBold ? 'bold' : 'normal');
                     const lines = doc.splitTextToSize(text, 170 - indent);
-                    lines.forEach(line => {
-                        doc.text(line, margin + indent, yPos);
-                        yPos += lineHeight;
-                    });
-                }
+                    lines.forEach(line => { doc.text(line, margin + indent, yPos); yPos += lineHeight; });
+                };
 
-                function processNode(node, level = 0) {
+                const processNode = (node, level = 0) => {
+                    if (node.link) return; // skip link-only nodes
                     if (level === 1) {
                         yPos += 4;
-                        addText(node.label.toUpperCase(), 13, true);
+                        addText(node.label.replace(/[🚀💼🛠🎓📄📬]/u, '').trim().toUpperCase(), 13, true);
                         yPos += 2;
                     } else if (level === 2) {
                         addText('• ' + node.label, 11, false, 5);
+                        if (node.subtitle) addText('  ' + node.subtitle, 9, false, 8);
                     } else if (level > 2) {
-                        addText('  - ' + node.label, 10, false, 15);
+                        addText('  – ' + node.label, 10, false, 14);
                     }
-
-                    if (node.children) {
-                        node.children.forEach(child => processNode(child, level + 1));
-                    }
-                }
+                    if (node.children) node.children.forEach(child => processNode(child, level + 1));
+                };
 
                 cvData.children.forEach(child => processNode(child, 1));
-
                 doc.save('Abdullah_Azhar_CV.pdf');
             };
 
@@ -867,7 +856,6 @@
                 const isExpanded = expandedNodes.has(node.id);
                 const isLink = !!node.link;
                 const tier = node.tier || 'secondary';
-
                 const className = `node tier-${tier} ${isExpanded ? 'expanded' : ''} ${isLink ? 'link' : ''} node-entering`;
 
                 return (
@@ -888,14 +876,10 @@
                             )}
                         </div>
                         {hasChildren && !isLink && (
-                            <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>
-                                ›
-                            </span>
+                            <span className={`expand-icon ${isExpanded ? 'expanded' : ''}`}>›</span>
                         )}
                         {isLink && (
-                            <span className="expand-icon">
-                                ↗
-                            </span>
+                            <span className="expand-icon">↗</span>
                         )}
                     </div>
                 );
@@ -903,33 +887,18 @@
 
             const renderConnections = () => {
                 const lines = [];
-
-                function traverse(node) {
+                const traverse = (node) => {
                     if (expandedNodes.has(node.id) && node.children) {
                         const parentPos = nodePositions[node.id];
                         node.children.forEach(child => {
                             const childPos = nodePositions[child.id];
                             if (parentPos && childPos) {
-                                // Different line styles based on parent tier
-                                let className = 'connection-line';
-                                if (node.tier === 'core') {
-                                    className += ' level-1';
-                                }
-
-                                // Calculate connection points at node edges
-                                // Parent: right edge, Child: left edge
-                                const parentWidth = parentPos.width || 200;
-                                const childWidth = childPos.width || 200;
-
-                                const startX = parentPos.x + parentWidth / 2;
+                                const className = `connection-line${node.tier === 'core' ? ' level-1' : ''}`;
+                                const startX = parentPos.x + (parentPos.width || 200) / 2;
                                 const startY = parentPos.y;
-                                const endX = childPos.x - childWidth / 2;
+                                const endX = childPos.x - (childPos.width || 200) / 2;
                                 const endY = childPos.y;
-
-                                // Create smooth horizontal curve for tree layout
-                                // Control points create an S-curve from parent to child
                                 const midX = (startX + endX) / 2;
-
                                 lines.push(
                                     <path
                                         key={`${node.id}-${child.id}`}
@@ -941,22 +910,19 @@
                             traverse(child);
                         });
                     }
-                }
-
+                };
                 traverse(cvData);
                 return lines;
             };
 
             const renderAllNodes = () => {
                 const nodes = [];
-
-                function traverse(node) {
+                const traverse = (node) => {
                     nodes.push(renderNode(node));
                     if (expandedNodes.has(node.id) && node.children) {
-                        node.children.forEach(child => traverse(child));
+                        node.children.forEach(traverse);
                     }
-                }
-
+                };
                 traverse(cvData);
                 return nodes;
             };
@@ -965,30 +931,20 @@
                 <>
                     {showInstructions && (
                         <div className="instruction-overlay">
-                            <h2>Welcome to Interactive CV</h2>
+                            <h2>Abdullah Azhar — Interactive CV</h2>
                             <p><strong>Click</strong> nodes to explore details</p>
                             <p><strong>Drag</strong> canvas to pan around</p>
                             <p><strong>Scroll</strong> to zoom in/out</p>
-                            <p>Use <strong>Quick Scan</strong> for fast overview</p>
-                            <button onClick={() => setShowInstructions(false)}>
-                                Start Exploring
-                            </button>
+                            <p>Use <strong>Quick Scan</strong> for a fast overview</p>
+                            <button onClick={() => setShowInstructions(false)}>Start Exploring</button>
                         </div>
                     )}
 
                     <div className="quick-actions">
-                        <button className="action-btn" onClick={quickScan}>
-                            ⚡ Quick Scan
-                        </button>
-                        <button className="action-btn" onClick={expandAll}>
-                            ⊕ Expand All
-                        </button>
-                        <button className="action-btn" onClick={collapseAll}>
-                            ⊖ Collapse All
-                        </button>
-                        <button className="action-btn primary" onClick={exportToPDF}>
-                            ⬇ Export PDF
-                        </button>
+                        <button className="action-btn" onClick={quickScan}>⚡ Quick Scan</button>
+                        <button className="action-btn" onClick={expandAll}>⊕ Expand All</button>
+                        <button className="action-btn" onClick={collapseAll}>⊖ Collapse All</button>
+                        <button className="action-btn primary" onClick={exportToPDF}>⬇ Export PDF</button>
                     </div>
 
                     <div
@@ -1000,23 +956,14 @@
                         onMouseLeave={handleMouseUp}
                         onWheel={handleWheel}
                     >
-                        <div
-                            style={{
-                                transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
-                                transformOrigin: '0 0',
-                                width: '5000px',
-                                height: '5000px',
-                                position: 'relative'
-                            }}
-                        >
-                            <svg style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                width: '5000px',
-                                height: '5000px',
-                                overflow: 'visible'
-                            }}>
+                        <div style={{
+                            transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`,
+                            transformOrigin: '0 0',
+                            width: '6000px',
+                            height: '5000px',
+                            position: 'relative'
+                        }}>
+                            <svg style={{ position: 'absolute', top: 0, left: 0, width: '6000px', height: '5000px', overflow: 'visible' }}>
                                 {renderConnections()}
                             </svg>
                             {renderAllNodes()}
@@ -1024,12 +971,12 @@
                     </div>
 
                     <div className="zoom-controls">
-                        <button className="zoom-btn" onClick={handleZoomIn}>+</button>
-                        <button className="zoom-btn" onClick={handleZoomOut}>−</button>
+                        <button className="zoom-btn" onClick={() => setZoom(p => Math.min(p * 1.2, 3))}>+</button>
+                        <button className="zoom-btn" onClick={() => setZoom(p => Math.max(p * 0.8, 0.3))}>−</button>
                     </div>
 
                     <div className="control-hint">
-                        <strong>Drag</strong> to explore • <strong>Scroll</strong> to zoom • <strong>Click</strong> nodes to expand
+                        <strong>Drag</strong> to explore · <strong>Scroll</strong> to zoom · <strong>Click</strong> nodes to expand · <strong>↗</strong> opens links
                     </div>
                 </>
             );
@@ -1038,5 +985,4 @@
         ReactDOM.render(<InteractiveCV />, document.getElementById('root'));
     </script>
 </body>
-
 </html>
